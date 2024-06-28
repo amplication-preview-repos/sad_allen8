@@ -1,0 +1,64 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Question {
+  correctAnswers Json?
+  createdAt      DateTime @default(now())
+  id             String   @id @default(cuid())
+  options        Json?
+  quiz           Quiz?    @relation(fields: [quizId], references: [id])
+  quizId         String?
+  title          String?
+  updatedAt      DateTime @updatedAt
+}
+
+model Quiz {
+  createdAt    DateTime      @default(now())
+  description  String?
+  id           String        @id @default(cuid())
+  questions    Question[]
+  quizAttempts QuizAttempt[]
+  title        String?
+  updatedAt    DateTime      @updatedAt
+}
+
+model Leaderboard {
+  createdAt  DateTime @default(now())
+  id         String   @id @default(cuid())
+  totalScore Float?
+  updatedAt  DateTime @updatedAt
+  user       User?    @relation(fields: [userId], references: [id])
+  userId     String?
+}
+
+model QuizAttempt {
+  answers   Json?
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  quiz      Quiz?    @relation(fields: [quizId], references: [id])
+  quizId    String?
+  score     Float?
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model User {
+  createdAt    DateTime      @default(now())
+  email        String?       @unique
+  firstName    String?
+  id           String        @id @default(cuid())
+  lastName     String?
+  leaderboards Leaderboard[]
+  password     String
+  quizAttempts QuizAttempt[]
+  roles        Json
+  updatedAt    DateTime      @updatedAt
+  username     String        @unique
+}
